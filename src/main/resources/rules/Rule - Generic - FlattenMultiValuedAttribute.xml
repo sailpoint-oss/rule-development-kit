@@ -1,0 +1,113 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE Rule PUBLIC "sailpoint.dtd" "sailpoint.dtd">
+<Rule language="beanshell" name="MultiValue Account Attribute">
+    <Description>Return a flattened multi-value account Attribute based on the provided criteria.</Description>
+    <Signature returnType='Object'>
+        <Inputs>
+            <Argument name='applicationName'>
+                <Description>
+                    The name of the source to search within.
+                </Description>
+            </Argument>
+            <Argument name='nativeIdentity'>
+                <Description>
+                    The native account ID within the source to search for.
+                </Description>
+            </Argument>
+            <Argument name='attribute'>
+                <Description>
+                    The account attribute to return.
+                </Description>
+            </Argument>
+            <Argument name='delimiter'>
+                <Description>
+                    The delimiter to insert between each element of a multi-value attribute.
+                </Description>
+            </Argument>
+            <Argument name='debugError'>
+                <Description>
+                    Optional boolean flag to return the exception message as the result in case of errors.
+                </Description>
+            </Argument>
+        </Inputs>
+        <Returns>
+            <Argument name='result'>
+                <Description>
+                    The processed account attribute if it was found successfully or null otherwise.
+                </Description>
+            </Argument>
+        </Returns>
+    </Signature>
+    <Source><![CDATA[
+import java.util.Collection;
+import java.util.Iterator;
+import sailpoint.server.IdnRuleUtil;
+
+// Initialize and validate inputs
+String applicationNameString = null;
+if (applicationName instanceof String) {
+  applicationNameString = (String) applicationName;
+}
+String nativeIdentityString = null;
+if (nativeIdentity instanceof String) {
+  nativeIdentityString = (String) nativeIdentity;
+}
+String attributeString = null;
+if (attribute instanceof String) {
+  attributeString = (String) attribute;
+}
+String delimiterString = null;
+if (delimiter instanceof String) {
+  delimiterString = (String) delimiter;
+}
+
+boolean debugErrorBoolean = false;
+if (debugError instanceof Boolean) {
+  debugErrorBoolean = (Boolean) debugError;
+} else if (debugError instanceof String) {
+  try {
+    debugErrorBoolean = Boolean.parseBoolean((String) debugError);
+  } catch (Exception e) {
+    // Ignore error
+  }
+}
+
+// If all required inputs were provided, attempt to get the attribute
+if (applicationNameString != null && nativeIdentityString != null && attributeString != null) {
+  try {
+    Object attribute =
+        idn.getRawAccountAttribute(applicationNameString, nativeIdentityString, attributeString);
+    if (attribute == null) {
+      log.debug("Attribute not found with default application name. Adding ' [source]' to application name and searching again");
+      // If the result was null, try appending " [source]" to the application name
+      attribute = idn.getRawAccountAttribute(
+          applicationNameString + " [source]", nativeIdentityString, attributeString);
+    }
+
+    log.debug("Raw object returned from attribute: " + attribute);
+
+    // Return the attribute as-is if it's not a collection or a delimiter was not provided
+    if (!(attribute instanceof Collection) || delimiterString == null) {
+      return attribute;
+    }
+
+    // Flatten the attribute
+    Collection collection = (Collection) attribute;
+    StringBuilder collectionString = new StringBuilder();
+    for (Iterator iterator = collection.iterator(); iterator.hasNext(); ) {
+      Object item = iterator.next();
+      collectionString.append(item);
+      if (iterator.hasNext()) {
+        collectionString.append(delimiterString);
+      }
+    }
+    return collectionString.toString();
+  } catch (Exception e) {
+    // Return the exception message if debugError was true, otherwise return null
+    return debugErrorBoolean ? e.getMessage() : null;
+  }
+}
+log.info("");
+return null;
+]]></Source>
+</Rule>
