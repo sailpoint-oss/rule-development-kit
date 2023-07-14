@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.util.Map;
 
@@ -43,6 +45,8 @@ public class ManagerCorrelationTest {
         
         @SuppressWarnings("unchecked")
         Map<String, String> result = (Map<String, String>) i.eval(source);
+
+        verify(link, times(1)).getAttribute("manager.email");
 
         assertNotNull(result);
         assertEquals(result.get("identityAttributeName"), "email");
