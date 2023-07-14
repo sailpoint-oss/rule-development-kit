@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE Rule PUBLIC "sailpoint.dtd" "sailpoint.dtd">
+<Rule name="Manager Email Correlation" type="ManagerCorrelation">
+  <Description>Finds a manager based on the manager.email attribute.</Description>
+  <Source><![CDATA[
+
+Map returnMap = new HashMap();
+
+String managerEmail = link.getAttribute( "manager.email" );
+returnMap.put( "identityAttributeName", "email");
+returnMap.put( "identityAttributeValue", managerEmail );
+
+return returnMap;
+
+  ]]></Source>
+</Rule>

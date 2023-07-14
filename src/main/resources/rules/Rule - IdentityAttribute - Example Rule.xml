@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE Rule PUBLIC "sailpoint.dtd" "sailpoint.dtd">
+<Rule name="Example Rule" type="IdentityAttribute">
+  <Description>Calculates LCS based on start and end dates.</Description>
+  <Source><![CDATA[
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+// Date format we expect dates to be in (ISO8601)
+SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyy-MM-dd" );
+
+// Parse the start date from the identity, and put in a Date object.
+Date startDate = null;
+if ( identity.getAttribute( "startDate" ) != null ) {
+  startDate = dateFormat.parse( identity.getAttribute( "startDate" ) );
+}
+
+// Parse the end date from the identity, and put in a Date object.
+Date endDate = null;
+if ( identity.getAttribute( "endDate" ) != null ) {
+  endDate = dateFormat.parse( identity.getAttribute( "endDate" ) );
+}
+
+// Define a date for today
+Date today = new Date();
+
+// Calculate lifecycle state based on the attributes.
+if ( startDate.after(today) && endDate.after(today)) {
+  return "prehire";
+} else if( startDate.before( today ) && endDate.after( today ) ) {
+  return "active";
+} else if ( endDate.before( today ) ) {
+  return "inactive";
+}
+
+// If we haven't calculated a state already, return null.
+return null;
+
+  ]]></Source>
+</Rule>
