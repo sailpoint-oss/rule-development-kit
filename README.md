@@ -37,13 +37,13 @@ After these steps are complete remove this checklist!
 ![Contributor Shield][contributor-shield]
 
 [discourse-shield]: https://img.shields.io/discourse/topics?label=Discuss%20This%20Tool&server=https%3A%2F%2Fdeveloper.sailpoint.com%2Fdiscuss
-[discourse-url]: https://developer.sailpoint.com/discuss/tag/workflows
-[downloads-shield]: https://img.shields.io/github/downloads/sailpoint-oss/api-linter/total?label=Downloads
-[issues-shield]:https://img.shields.io/github/issues/sailpoint-oss/api-linter?label=Issues
-[release-shield]: https://img.shields.io/github/v/release/sailpoint-oss/api-linter?label=Current%20Release
-[contributor-shield]:https://img.shields.io/github/contributors/sailpoint-oss/api-linter?label=Contributors
+[discourse-url]: https://developer.sailpoint.com/discuss/tag/rules
+[downloads-shield]: https://img.shields.io/github/downloads/sailpoint-oss/rule-developement-kit/total?label=Downloads
+[issues-shield]:https://img.shields.io/github/issues/sailpoint-oss/rule-developement-kit?label=Issues
+[release-shield]: https://img.shields.io/github/v/release/sailpoint-oss/rule-developement-kit?label=Current%20Release
+[contributor-shield]:https://img.shields.io/github/contributors/sailpoint-oss/rule-developement-kit?label=Contributors
 
-[product-screenshot]: ./assets/images/api-linter-output.png
+[product-screenshot]: ./assets/images/intellij.png
 
 <!-- PROJECT LOGO -->
 <br />
@@ -52,10 +52,10 @@ After these steps are complete remove this checklist!
     <img src="https://avatars.githubusercontent.com/u/63106368?s=200&v=4" alt="Logo" width="80" height="80">
   </a>
 
-  <h3 align="center">SailPoint OSS - README - Template</h3>
+  <h3 align="center">Rule Development Kit</h3>
 
   <p align="center">
-    An awesome README template to jumpstart your projects!
+    A project setup for the development and testing of SailPoint rules.
     <br />
     <a href="https://github.com/othneildrew/Best-README-Template"><strong>Explore the docs »</strong></a>
     <br />
@@ -72,7 +72,7 @@ After these steps are complete remove this checklist!
 ## About The Project
 
 <div align="center">
-<img src="./assets/images/api-linter-output.png" width="500" height="" style="text-align:center">
+<img src="./assets/images/intellij.png" width="800" height="" style="text-align:center">
 </div>
 
 There are many great README templates available on GitHub; however, I didn't find one that really suited my needs so I created this enhanced one. I want to create a README template so amazing that it'll be the last one you ever need -- I think this is it.
