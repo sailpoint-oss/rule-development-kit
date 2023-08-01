@@ -2,6 +2,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import sailpoint.object.Application;
+import sailpoint.object.Field;
 import sailpoint.object.Identity;
 import sailpoint.server.IdnRuleUtil;
 import sailpoint.tools.GeneralException;
@@ -11,6 +12,7 @@ public class UsernameGenerator {
     Identity identity = new Identity();
     Application application = new Application();
     IdnRuleUtil idn;
+    Field field = new Field();
 
     int MAX_USERNAME_LENGTH = 12;
 
