@@ -23,14 +23,14 @@ public class UsernameGeneratorTest {
     private static final String RULE_FILENAME = "src/main/resources/rules/Rule - AttributeGenerator - UsernameGenerator.xml";
 
     @Test
-    public void testUsernameGeneratorWhereFirstNameIsGreaterThanMAXLENGTH () throws GeneralException, EvalError {
+    public void testUsernameGeneratorWhereFirstAndLastNameValid () throws GeneralException, EvalError {
         Interpreter i = new Interpreter();
 
         IdnRuleUtil idn = mock();
-        when(idn.accountExistsByDisplayName(any(), any())).thenReturn(true).thenReturn(false);
+        when(idn.accountExistsByDisplayName(any(), any())).thenReturn(false);
 
         Application application = mock(Application.class);
-        when(application.getName()).thenReturn("applicationName");
+        when(application.getName()).thenReturn("Active Directory [source]");
 
         Identity identity = mock(Identity.class);
         when(identity.getFirstname()).thenReturn("Tyler");
@@ -47,7 +47,69 @@ public class UsernameGeneratorTest {
         result = (String) i.eval(source);
 
         assertNotNull(result);
-        assertEquals(result, "tyler.s");
+        assertEquals(result, "tyler.smith");
+
+        log.info("Beanshell script returned: " + result);
+
+    }
+
+    @Test
+    public void testUsernameGeneratorWhereFirstAndLastLongerThanMAXLENGTH () throws GeneralException, EvalError {
+        Interpreter i = new Interpreter();
+
+        IdnRuleUtil idn = mock();
+        when(idn.accountExistsByDisplayName(any(), any())).thenReturn(false);
+
+        Application application = mock(Application.class);
+        when(application.getName()).thenReturn("Active Directory [source]");
+
+        Identity identity = mock(Identity.class);
+        when(identity.getFirstname()).thenReturn("Kiefer");
+        when(identity.getLastname()).thenReturn("Sutherland");
+        when(identity.getStringAttribute("otherName")).thenReturn("");
+        String result = "";
+
+        i.set("log", log);
+        i.set("idn", idn);
+        i.set("application", application);
+        i.set("identity", identity);
+
+        String source = RuleXmlUtils.readRuleSourceFromFilePath(RULE_FILENAME);
+        result = (String) i.eval(source);
+
+        assertNotNull(result);
+        assertEquals(result, "kiefer.s");
+
+        log.info("Beanshell script returned: " + result);
+
+    }
+
+    @Test
+    public void testUniqueLogic () throws GeneralException, EvalError {
+        Interpreter i = new Interpreter();
+
+        IdnRuleUtil idn = mock();
+        when(idn.accountExistsByDisplayName(any(), any())).thenReturn(true).thenReturn(true).thenReturn(false);
+
+        Application application = mock(Application.class);
+        when(application.getName()).thenReturn("Active Directory [source]");
+
+        Identity identity = mock(Identity.class);
+        when(identity.getFirstname()).thenReturn("Kiefer");
+        when(identity.getLastname()).thenReturn("Sutherland");
+        when(identity.getStringAttribute("otherName")).thenReturn("");
+        String result = "";
+
+        i.set("log", log);
+        i.set("idn", idn);
+        i.set("application", application);
+        i.set("identity", identity);
+
+        String source = RuleXmlUtils.readRuleSourceFromFilePath(RULE_FILENAME);
+        result = (String) i.eval(source);
+
+        assertNotNull(result);
+        assertEquals(result, "kiefer.t");
 
         log.info("Beanshell script returned: " + result);
 
