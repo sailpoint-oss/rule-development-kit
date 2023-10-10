@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 import org.junit.jupiter.api.Test;
 import sailpoint.object.Application;
 import sailpoint.object.Identity;
-import sailpoint.ps.utils.RuleXmlUtils;
+import sailpoint.rdk.utils.RuleXmlUtils;
 import sailpoint.server.IdnRuleUtil;
 import sailpoint.tools.GeneralException;
 
@@ -33,7 +33,7 @@ public class UsernameGeneratorTest {
         when(application.getName()).thenReturn("Active Directory [source]");
 
         Identity identity = mock(Identity.class);
-        when(identity.getFirstname()).thenReturn("Tyler");
+        when(identity.getFirstname()).thenReturn("Tylér");
         when(identity.getLastname()).thenReturn("Smith");
         when(identity.getStringAttribute("otherName")).thenReturn("");
         String result = "";

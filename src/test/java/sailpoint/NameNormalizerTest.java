@@ -5,9 +5,7 @@ import bsh.Interpreter;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.junit.jupiter.api.Test;
-import sailpoint.ps.utils.RuleXmlUtils;
-
-import java.util.Arrays;
+import sailpoint.rdk.utils.RuleXmlUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
