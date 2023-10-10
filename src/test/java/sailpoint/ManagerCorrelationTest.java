@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 import bsh.EvalError;
 import bsh.Interpreter;
 import sailpoint.object.Link;
-import sailpoint.ps.utils.RuleXmlUtils;
+import sailpoint.rdk.utils.RuleXmlUtils;
 import sailpoint.server.IdnRuleUtil;
 import sailpoint.tools.GeneralException;
 

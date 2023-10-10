@@ -5,13 +5,8 @@ import bsh.Interpreter;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.junit.jupiter.api.Test;
-import sailpoint.connector.webservices.Endpoint;
-import sailpoint.connector.webservices.WebServicesClient;
 import sailpoint.object.*;
-import sailpoint.ps.utils.RuleXmlUtils;
-import sailpoint.rule.Account;
-import sailpoint.rule.ManagedAttributeDetails;
-import sailpoint.server.IdnRuleUtil;
+import sailpoint.rdk.utils.RuleXmlUtils;
 import sailpoint.tools.GeneralException;
 
 import sailpoint.object.ProvisioningPlan;

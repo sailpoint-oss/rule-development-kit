@@ -3,8 +3,6 @@ package sailpoint;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.util.Arrays;
@@ -17,9 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import bsh.EvalError;
 import bsh.Interpreter;
-import sailpoint.object.Link;
-import sailpoint.ps.utils.RuleXmlUtils;
-import sailpoint.server.IdnRuleUtil;
+import sailpoint.rdk.utils.RuleXmlUtils;
 import sailpoint.tools.GeneralException;
 
 public class JoinAttributesTest {

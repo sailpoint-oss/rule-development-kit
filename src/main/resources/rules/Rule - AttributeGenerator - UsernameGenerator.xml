@@ -10,6 +10,7 @@
     import sailpoint.api.*;
     import java.util.List;
     import org.apache.commons.lang.StringUtils;
+    import java.text.Normalizer;
 
     int MAX_USERNAME_LENGTH = 12;
 
@@ -19,14 +20,17 @@
         String otherName = identity.getStringAttribute("otherName");
 
         if(firstName != null) {
+            firstName = (Normalizer.normalize(firstName, Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", ""));
             firstName = firstName.replaceAll("[^a-zA-Z0-9]", "");
         }
 
         if(lastName != null) {
+            lastName = (Normalizer.normalize(lastName, Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", ""));
             lastName = lastName.replaceAll("[^a-zA-Z0-9]", "");
         }
 
         if(otherName != null) {
+            otherName = (Normalizer.normalize(otherName, Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", ""));
             otherName = otherName.replaceAll("[^a-zA-Z0-9]", "");
         }
 

@@ -1,9 +1,22 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE Rule PUBLIC "sailpoint.dtd" "sailpoint.dtd">
-<Rule name="Example Rule" type="BuildMap">
+<Rule name="JoinAttributes" type="BuildMap">
     <Description>This basic rule performs the combines 2 values into a single attribute.</Description>
+    <Signature returnType='Object'>
+    <Inputs>
+    <Argument name='cols' type='java.util.List'>
+        <Description>
+            The columns of the delimited file.
+        </Description>
+    </Argument>
+        <Argument name='record' type='java.util.List'>
+            <Description>
+                A single record of the delimited file.
+            </Description>
+        </Argument>
+    </Inputs>
+    </Signature>
     <Source><![CDATA[
-
      import sailpoint.connector.DelimitedFileConnector;
 
      Map map = DelimitedFileConnector.defaultBuildMap( cols, record );

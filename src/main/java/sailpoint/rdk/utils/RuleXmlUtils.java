@@ -1,4 +1,4 @@
-package sailpoint.ps.utils;
+package sailpoint.rdk.utils;
 
 import java.io.File;
 import java.io.IOException;
