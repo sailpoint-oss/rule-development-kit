@@ -33,7 +33,7 @@ public class UsernameGeneratorTest {
         when(application.getName()).thenReturn("Active Directory [source]");
 
         Identity identity = mock(Identity.class);
-        when(identity.getFirstname()).thenReturn("Tylér");
+        when(identity.getFirstname()).thenReturn("Tyler");
         when(identity.getLastname()).thenReturn("Smith");
         when(identity.getStringAttribute("otherName")).thenReturn("");
         String result = "";
