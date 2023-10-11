@@ -1,15 +1,12 @@
 [![Discourse Topics][discourse-shield]][discourse-url]
-![Times Downloaded][downloads-shield]
 ![Issues][issues-shield]
-![Latest Releases][release-shield]
 ![Contributor Shield][contributor-shield]
 
 [discourse-shield]: https://img.shields.io/discourse/topics?label=Discuss%20This%20Tool&server=https%3A%2F%2Fdeveloper.sailpoint.com%2Fdiscuss
 [discourse-url]: https://developer.sailpoint.com/discuss/tag/rules
-[downloads-shield]: https://img.shields.io/github/downloads/sailpoint-oss/rule-developement-kit/total?label=Downloads
-[issues-shield]:https://img.shields.io/github/issues/sailpoint-oss/rule-developement-kit?label=Issues
-[release-shield]: https://img.shields.io/github/v/release/sailpoint-oss/rule-developement-kit?label=Current%20Release
-[contributor-shield]:https://img.shields.io/github/contributors/sailpoint-oss/rule-developement-kit?label=Contributors
+[issues-shield]:https://img.shields.io/github/issues/sailpoint-oss/rule-development-kit?label=Issues
+[contributor-shield]:https://img.shields.io/github/contributors/sailpoint-oss/rule-development-kit?label=Contributors
+
 
 [product-screenshot]: ./assets/images/intellij.png
 
