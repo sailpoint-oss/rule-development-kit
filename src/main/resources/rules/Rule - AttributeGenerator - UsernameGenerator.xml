@@ -17,7 +17,6 @@
     public String generateUsername(String firstName, String lastName) throws GeneralException {
         firstName = StringUtils.trimToNull(firstName);
         lastName = StringUtils.trimToNull(lastName);
-        String otherName = identity.getStringAttribute("otherName");
 
         if(firstName != null) {
             firstName = (Normalizer.normalize(firstName, Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", ""));
@@ -29,18 +28,9 @@
             lastName = lastName.replaceAll("[^a-zA-Z0-9]", "");
         }
 
-        if(otherName != null) {
-            otherName = (Normalizer.normalize(otherName, Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", ""));
-            otherName = otherName.replaceAll("[^a-zA-Z0-9]", "");
-        }
-
         if((firstName == null) || (lastName == null)) {
             log.debug( "AD Create User Name | Exit from generateUsername method. No last name and first name for user" );
             return null;
-        }
-
-        if(!StringUtils.isEmpty(otherName)) {
-            firstName = otherName;
         }
 
         String username = null;

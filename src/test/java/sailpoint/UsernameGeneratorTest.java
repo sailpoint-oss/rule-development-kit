@@ -35,7 +35,6 @@ public class UsernameGeneratorTest {
         Identity identity = mock(Identity.class);
         when(identity.getFirstname()).thenReturn("Tylér");
         when(identity.getLastname()).thenReturn("Smith");
-        when(identity.getStringAttribute("otherName")).thenReturn("");
         String result = "";
 
         i.set("log", log);
@@ -66,7 +65,6 @@ public class UsernameGeneratorTest {
         Identity identity = mock(Identity.class);
         when(identity.getFirstname()).thenReturn("Kiefer");
         when(identity.getLastname()).thenReturn("Sutherland");
-        when(identity.getStringAttribute("otherName")).thenReturn("");
         String result = "";
 
         i.set("log", log);
@@ -97,7 +95,6 @@ public class UsernameGeneratorTest {
         Identity identity = mock(Identity.class);
         when(identity.getFirstname()).thenReturn("Kiefer");
         when(identity.getLastname()).thenReturn("Sutherland");
-        when(identity.getStringAttribute("otherName")).thenReturn("");
         String result = "";
 
         i.set("log", log);
