@@ -39,6 +39,8 @@
             <groupId>sailpoint</groupId>
             <artifactId>rule-java-docs</artifactId>
             <version>1.1</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/sailpoint/rule-java-docs/1.1/rule-java-docs-1.1.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>net.bytebuddy</groupId>
@@ -70,7 +72,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>5.2.0</version>
+            <version>5.20.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -87,6 +89,11 @@
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>2.10.1</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.3.5</version>
         </dependency>
     </dependencies>
 </project>
