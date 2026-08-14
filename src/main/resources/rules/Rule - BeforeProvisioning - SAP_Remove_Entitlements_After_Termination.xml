@@ -1,0 +1,132 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE Rule PUBLIC "sailpoint.dtd" "sailpoint.dtd">
+<Rule name="SAP_Remove_Entitlements_After_Termination_Test" type="BeforeProvisioning">
+    <Description>SAP GRC BeforeProvisioning Rule To Remove Entitltments once user Disabled</Description>
+    <Source>
+	<![CDATA[
+
+import sailpoint.object.*;
+import sailpoint.object.ProvisioningPlan.Operation;
+import sailpoint.object.ProvisioningPlan.AccountRequest;
+import sailpoint.object.ProvisioningPlan.AttributeRequest;
+import sailpoint.rule.Account;
+import sailpoint.server.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import sailpoint.object.Identity;
+import sailpoint.object.ProvisioningPlan;
+import sailpoint.api.*;
+import org.apache.commons.lang.StringUtils;
+import sailpoint.object.Application;
+import sailpoint.object.Attributes;
+import sailpoint.object.Filter;
+import sailpoint.object.Link;
+import sailpoint.object.LinkExternalAttribute;
+import sailpoint.object.ManagedAttribute;
+import sailpoint.object.QueryOptions;
+import sailpoint.rule.RuleObjectFactory;
+import sailpoint.tools.GeneralException;
+import sailpoint.tools.Util;
+import sailpoint.rule.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+
+/** 
+	*SAP GRC BeforeProvisioning Rule to remove the roles assigned to user in SAP GRC source once the user becomes Terminates or Disabled 
+*/
+
+
+
+ /** 
+	*This method is used to fetch all the entitlement that user has
+	*@param accountExists  - Boolean check to confirm if account exist by native identity.
+	*@param value - user entitlements from getRawAccountAttribute(); method it may return String or ArrayList.
+	*@return attributeValueList - User entitlement list.
+	*@exception General exception, connectorExceptions.
+*/
+
+
+public List getAccountAttributeList(String applicationName, String nativeIdentity, String attributeName) {
+	log.info("SAP_Remove_Entitlements_After_Termination_Test || Log 9 - Entered getAccountAttributeList function");
+	List attributeValueList = new ArrayList();
+	try{
+		
+		boolean accountExists = idn.accountExistsByNativeIdentity(applicationName, nativeIdentity);
+		log.info("SAP_Remove_Entitlements_After_Termination_Test || Log 10 - Account Exists : "+accountExists);
+		if (accountExists) {
+
+			Object value = idn.getRawAccountAttribute(applicationName, nativeIdentity, attributeName);
+			log.info("SAP_Remove_Entitlements_After_Termination_Test || Log 11 - RAW Account Attributes: "+value);
+			if (value != null) {
+				if (value instanceof List) {
+					attributeValueList.addAll(value);
+				} else if (value instanceof String) {
+					attributeValueList.add(value);
+				}
+			
+			}
+		}
+	}
+	catch(Exception e)
+	{
+		log.error("SAP_Remove_Entitlements_After_Termination_test || ERROR - 1 Exception occurec in getAccountAttributeList function : "+e);
+	}
+	log.info("SAP_Remove_Entitlements_After_Termination_Test || Log 12 - attribut Value list is : "+attributeValueList);
+	log.info("SAP_Remove_Entitlements_After_Termination_Test || Log 13 - Exiting getAccountAttributeList function");
+    return attributeValueList;
+}
+
+/** 
+	*Below block of code is used to fetch the operation that is performed on the user account. 
+	*If the operation performed is Disable then code uses getAccountAttributeList(); to fetch all the entitlements that user has 
+	*Once the entitlements are fetched remove remove operation will be performed.
+*/
+
+if (plan != null) {
+    Identity identity = plan.getIdentity();
+	List accreqs = new LinkedList();
+	log.info("SAP_Remove_Entitlements_After_Termination_Test || Log 1 - Identity is : "+identity);
+    if (identity != null) {
+		log.info("SAP_Remove_Entitlements_After_Termination_Test || Log 2 - Plan is : "+plan);
+		String entName="Roles";
+		List accountRequests = plan.getAccountRequests();
+		log.info("SAP_Remove_Entitlements_After_Termination_Test || Log 3 - accountRequests plan.getAccountRequests as List is : "+accountRequests);
+        if (accountRequests != null && accountRequests.size() > 0) {
+            for (AccountRequest accRequest: accountRequests) {
+                if (accRequest != null) {
+                    if (accRequest.getNativeIdentity() == null) {
+						log.info("SAP_Remove_Entitlements_After_Termination_Test || Log 5 - accRequest from list : "+accRequest);
+						log.info("SAP_Remove_Entitlements_After_Termination_Test || Log 6 - Native identity inside IF) : "+accRequest.getNativeIdentity());
+                        plan.remove(accRequest);
+                    } else {
+
+                        AccountRequest.Operation op = accRequest.getOperation();
+						log.info("SAP_Remove_Entitlements_After_Termination_Test || Log - 7 Operation before entering to if condition : "+op);
+                        if (op != null) {
+                            if (op.equals(AccountRequest.Operation.Disable)) {
+								log.info("SAP_Remove_Entitlements_After_Termination_Test || Log 8 - Entering getAccountAttributeList Function");
+                                List entList = getAccountAttributeList(accRequest.getApplication(), accRequest.getNativeIdentity(), entName);
+								log.info("SAP_Remove_Entitlements_After_Termination_Test || Log 14 - Operation after entering to if condition : "+op);
+								log.info("SAP_Remove_Entitlements_After_Termination_Test || Log 15  - Entitlement List is before remove : "+entList);
+                                for (String ent: entList) {
+                                    AttributeRequest attrRequest = new AttributeRequest(entName, ProvisioningPlan.Operation.Remove, ent);
+									List entListAfterRemoveOp = getAccountAttributeList(accRequest.getApplication(), accRequest.getNativeIdentity(), entName);
+									log.info("SAP_Remove_Entitlements_After_Termination_Test || Log 16  - Entitlement List is after remove : "+entListAfterRemoveOp);
+                                }
+                            }
+                        }
+                    }
+                }
+				accreqs.add(accRequest);
+            }
+        }
+    }
+	plan.setAccountRequests(accreqs);
+
+}
+]]>
+</Source>
+		</Rule>

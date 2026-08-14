@@ -3,6 +3,7 @@
 <Rule name="EmailGenerator" type="AttributeGenerator">
     <Description>Generate a unique email address for Active Directory.</Description>
     <Source><![CDATA[
+
 import sailpoint.tools.GeneralException;
 import sailpoint.object.Identity;
 import sailpoint.object.Application;
@@ -22,9 +23,6 @@ import java.util.Map;
 
 log.info("EMAIL GENERATOR RULE AD || 1: Entering the RULE - EmailGenerator");
 
-String ntId = identity.getAttribute("networkId");
-log.info("EMAIL GENERATOR RULE AD || 2: Retrieved NETWORK_ID is: " + ntId);
-
 String companyID = identity.getAttribute("companyId");
 log.info("EMAIL GENERATOR RULE AD || 3: Retrieved COMPANY_ID is: " + companyID);
 
@@ -36,42 +34,42 @@ log.info("EMAIL GENERATOR RULE AD || 3: Retrieved COMPANY_ID is: " + companyID);
  * @param companyID The company ID for which the domain needs to be retrieved.
  * @return The corresponding domain for the company ID.
  */
-public static String getDomainByCompanyID(int companyID) {
+public static String getDomainByCompanyID(String companyID) {
     log.info("EMAIL GENERATOR RULE AD || 4: Entering getDomainByCompanyID method with companyID: " + companyID);
 
     // Initialize the map with CompanyID and Email Domain pairs
-    Map<Integer, String> companyDomains = new HashMap<>();
-    companyDomains.put(98, "jmfamily.com");
-    companyDomains.put(10, "jmfamily.com");
-    companyDomains.put(100, "jmfamily.com");
-    companyDomains.put(101, "jmfamily.com");
-    companyDomains.put(160, "jmfamilyholdings.com");
-    companyDomains.put(200, "setoyota.com");
-    companyDomains.put(250, "setoyota.com");
-    companyDomains.put(290, "setoyota.com");
-    companyDomains.put(300, "jmagroup.com");
-    companyDomains.put(301, "jmagroup.com");
-    companyDomains.put(303, "jmagroup.com");
-    companyDomains.put(305, "jmagroup.com");
-    companyDomains.put(307, "jmagroup.com");
-    companyDomains.put(400, "setf.com");
-    companyDomains.put(40011, "wofco.com");
-    companyDomains.put(40013, "ctrone.com");
-    companyDomains.put(40014, "yatc.org");
-    companyDomains.put(40015, "centurywarranty.com");
-    companyDomains.put(40016, "fiasolutions.com");
-    companyDomains.put(40017, "dsfs.ca");
-    companyDomains.put(40018, "mmsa.com");
-    companyDomains.put(40019, "jmcustomcreations.com");
-    companyDomains.put(40020, "dsfs.com");
-    companyDomains.put(421, "onedatascan.com");
-    companyDomains.put(422, "onedatascan.com");
-    companyDomains.put(424, "onedatascan.ca");
-    companyDomains.put(464, "onedatascan.com");
-    companyDomains.put(470, "onedatascan.com");
-    companyDomains.put(495, "onedatascan.ca");
-    companyDomains.put(700, "jmlexus.com");
-    companyDomains.put(997, "bellsouth.net");
+    Map companyDomains = new HashMap();
+    companyDomains.put("98", "jmfamily.com");
+    companyDomains.put("10", "jmfamily.com");
+    companyDomains.put("100", "jmfamily.com");
+    companyDomains.put("101", "jmfamily.com");
+    companyDomains.put("160", "jmfamilyholdings.com");
+    companyDomains.put("200", "setoyota.com");
+    companyDomains.put("250", "setoyota.com");
+    companyDomains.put("290", "setoyota.com");
+    companyDomains.put("300", "jmagroup.com");
+    companyDomains.put("301", "jmagroup.com");
+    companyDomains.put("303", "jmagroup.com");
+    companyDomains.put("305", "jmagroup.com");
+    companyDomains.put("307", "jmagroup.com");
+    companyDomains.put("400", "setf.com");
+    companyDomains.put("40011", "wofco.com");
+    companyDomains.put("40013", "ctrone.com");
+    companyDomains.put("40014", "yatc.org");
+    companyDomains.put("40015", "centurywarranty.com");
+    companyDomains.put("40016", "fiasolutions.com");
+    companyDomains.put("40017", "dsfs.ca");
+    companyDomains.put("40018", "mmsa.com");
+    companyDomains.put("40019", "jmcustomcreations.com");
+    companyDomains.put("40020", "dsfs.com");
+    companyDomains.put("421", "onedatascan.com");
+    companyDomains.put("422", "onedatascan.com");
+    companyDomains.put("424", "onedatascan.ca");
+    companyDomains.put("464", "onedatascan.com");
+    companyDomains.put("470", "onedatascan.com");
+    companyDomains.put("495", "onedatascan.ca");
+    companyDomains.put("700", "jmlexus.com");
+    companyDomains.put("997", "bellsouth.net");
 
     // Return the domain for the given CompanyID, or a message if not found
     String domain = companyDomains.getOrDefault(companyID, "CompanyID not found!");
@@ -79,7 +77,7 @@ public static String getDomainByCompanyID(int companyID) {
     return domain;
 }
 
-log.info("EMAIL GENERATOR RULE AD || 6: COMPANY ID IS: " + getDomainByCompanyID(identity.getAttribute("companyId")));
+log.info("EMAIL GENERATOR RULE AD || 6: COMPANY ID IS: " + getDomainByCompanyID(companyID));
 
 /**
  * Method to check if the generated email is unique.
@@ -126,7 +124,7 @@ public String generateEmail() throws GeneralException {
     log.info("EMAIL GENERATOR RULE AD || 10: Entering generateEmail method with firstName: " + firstName + ", lastName: " + lastName + ", companyId: " + companyId);
 
     try {
-        String domain = getDomainByCompanyID(Integer.parseInt(companyId));
+        String domain = getDomainByCompanyID(companyId);
         String generatedEmail = firstName + "." + lastName + "@" + domain;
         String applicationName = application.getName();
         String identityId = identity.getId();
@@ -143,11 +141,13 @@ public String generateEmail() throws GeneralException {
         if (Util.isNotNullOrEmpty(firstName) && Util.isNotNullOrEmpty(lastName) && Util.isNotNullOrEmpty(domain)) {
             if (Util.isNotNullOrEmpty(applicationName) && Util.isNotNullOrEmpty(identityId) && Util.isNotNullOrEmpty(attributeName)) {
                 if (generatedEmail != null && !generatedEmail.isEmpty()) {
+                    // Check if the generated email is unique
                     if (isUnique(generatedEmail, identityId, applicationName, attributeName)) {
-                        String workdayAttributeValue = "";
-                        workdayAttributeValue = idn.attrSearchGetIdentityName(sourceIds, workdayAttributeName, operation, values);
+                        String workdayAttributeValue = idn.attrSearchGetIdentityName(sourceIds, workdayAttributeName, operation, values);
                         log.info("EMAIL GENERATOR RULE AD || 12: Exiting generateEmail method with result: " + generatedEmail.toLowerCase());
-                        return generatedEmail.toLowerCase();
+                        if (Util.isNullOrEmpty(workdayAttributeValue)){
+                            return generatedEmail.toLowerCase();
+                        }
                     } else {
                         log.warn("EMAIL GENERATOR RULE AD || 13: Generated email is not unique, proceeding to fallback logic.");
                     }
@@ -160,13 +160,16 @@ public String generateEmail() throws GeneralException {
                 String emailWithIteration = firstName + "." + lastName + iteration + "@" + domain;
                 String[] emailIdtArray = {emailWithIteration};
                 List emailIdvalue = Arrays.asList(emailIdtArray);
+
+                // Check if the email with iteration is unique
                 if (isUnique(emailWithIteration, identityId, applicationName, attributeName)) {
-                    String workdayAttributeValue = "";
-                    workdayAttributeValue = idn.attrSearchGetIdentityName(sourceIds, workdayAttributeName, operation, emailIdvalue);
+                    String workdayAttributeValue = idn.attrSearchGetIdentityName(sourceIds, workdayAttributeName, operation, emailIdvalue);
                     log.info("EMAIL GENERATOR RULE AD || 14: Exiting generateEmail method with result (generated with iteration): " + emailWithIteration.toLowerCase());
-                    return emailWithIteration.toLowerCase();
+                    if (Util.isNullOrEmpty(workdayAttributeValue)){
+                        return emailWithIteration.toLowerCase(); // Return as soon as we find a unique email
+                    }
                 }
-                iteration++;
+                iteration++; // Continue to next iteration only if not unique
             }
         }
         throw new GeneralException("EMAIL GENERATOR RULE AD || 15: Cannot generate email after 100 attempts");

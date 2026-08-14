@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE Rule PUBLIC "sailpoint.dtd" "sailpoint.dtd">
+<Rule name="SAP_Before_provisioning_Rule" type="BeforeProvisioning">
+    <Description>SAP GRC BeforeProvisioning Rule To Remove Entitltments once user Disabled</Description>
+    <Source>
+	<![CDATA[
+import sailpoint.object.ProvisioningPlan;
+import sailpoint.object.ProvisioningPlan.AccountRequest;
+import sailpoint.object.ProvisioningPlan.AttributeRequest;
+import sailpoint.object.Application;
+import sailpoint.object.Identity;
+import sailpoint.object.Link;
+
+import sailpoint.api.IdentityService;
+
+import java.util.List;
+import java.util.Date;
+
+import java.text.SimpleDateFormat;
+
+IdentityService service = new IdentityService(context);
+Identity identity = plan.getIdentity();
+SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
+List acctReqs = plan.getAccountRequests();
+
+for(AccountRequest acct : acctReqs) {
+	log.info("SAP_Before provisioning_Rule - log 1 " +acct);
+	if(acct.getOperation().equals(AccountRequest.Operation.Disable)) {
+		log.info("SAP_Before provisioning_Rule - log 2 " + acct.getOperation());
+		
+		acct.add(new AttributeRequest("Valid To",ProvisioningPlan.Operation.Set,sdf.format(new Date())));
+		
+		List links = service.getLinks(identity,application);
+		log.info("SAP_Before provisioning_Rule - log 3 " + links);
+		if(!links.isEmpty()) {
+			List entitlements = links.get(0).getAttribute("Roles");
+			if(entitlements != null && !entitlements.isEmpty()) {
+				for(String value : entitlements) {
+					acct.add(new AttributeRequest("Roles",ProvisioningPlan.Operation.Remove,value));
+				}
+			}
+		}
+	}
+}
+]]>
+</Source>
+		</Rule>

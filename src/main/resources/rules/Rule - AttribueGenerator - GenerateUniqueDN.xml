@@ -1,0 +1,127 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE Rule PUBLIC "sailpoint.dtd" "sailpoint.dtd">
+<Rule name="GenerateUniqueDN" type="AttributeGenerator">
+    <Description>Generate a unique email address for Active Directory.</Description>
+    <Source><![CDATA[
+
+import sailpoint.object.Identity;
+import sailpoint.object.Attributes;
+import sailpoint.tools.GeneralException;
+import sailpoint.object.AttributeDefinition;
+import sailpoint.api.SailPointContext;
+import org.apache.commons.lang.StringUtils;
+import sailpoint.tools.Util;
+
+
+
+public String getAccountName(int option, String firstName, String lastName, String middleName) {
+	String firstInit = StringUtils.substring(firstName, 0, 1);
+	String lastInit = StringUtils.substring(lastName, 0, 1);
+	String middleInit = null;
+	boolean hasMiddleName = false;
+	if (Util.isNotNullOrEmpty(middleName)) {
+	  middleInit = StringUtils.substring(middleName, 0, 1);
+	  hasMiddleName = true;
+	}
+	switch (option) {
+	case 1:
+	  return firstName + lastName;
+	case 2:
+	  if (hasMiddleName) {
+		return firstName + middleInit + lastName;
+	  }
+	  return null;
+	case 3:
+	  return firstInit + lastName;
+	case 4:
+	  if (hasMiddleName) {
+		return firstInit + middleInit + lastName;
+	  }
+	  return null;
+	case 5:
+	  return firstName + lastInit;
+	case 6:
+	  if (hasMiddleName) {
+		return firstName + middleInit + lastInit;
+	  }
+	  return null;
+	default:
+	  if (accountIteration < firstName.length() && accountIteration <= 50) {
+		accountIteration = accountIteration + 1;
+		String addInit = StringUtils.substring(firstName, 0, accountIteration);
+		return addInit + lastName;
+	  }
+	  accountIteration = accountIteration + 1;
+	  return firstInit + lastName + (accountIteration - firstName.length());
+	}
+}
+
+public String formatString(String value) {
+    value = StringUtils.trimToNull(value);
+	if (Util.isNotNullOrEmpty(value)) {
+	  value = value.replaceAll(\"\\\\W\", \"\").replaceAll(\"\\\\'\", \"\").toLowerCase().replaceAll(\"[^a-zA-Z0-9]\", \"\");
+	}
+	return value;
+}
+
+public boolean isUnique(Identity identity, String username) {
+    String sourceId = ""; 
+    String attributeName = "displayName"; 
+    String attributeValue = formatString(username);
+
+ 
+    return identity.isUniqueAttributeValue(sourceId, attributeName, attributeValue);
+}
+
+
+public String generateUniqueDN(SailPointContext context, Identity identity) throws GeneralException {
+    String firstName = (String) identity.getAttribute("firstName");
+    String lastName = (String) identity.getAttribute("lastName");
+    String middleName = (String) identity.getAttribute("middleName");
+    String displayName = (String) identity.getAttribute("displayName");
+	String UserOU = (String) identity.getAttribute("ou");
+
+    String uniqueDN = null;
+
+    if (Util.isNullOrEmpty(displayName)) {
+        displayName = getAccountName(1, firstName, lastName, middleName);
+    } else {
+        displayName = formatString(displayName);
+    }
+	boolean uniqueNameFound = false;
+    if (isUnique(identity, displayName)) {
+        uniqueDN = "CN=" + displayName + UserOU; 
+		uniqueNameFound = true;
+    } 
+	if(!uniqueNameFound){
+        int option = 1;
+        while (option <= 6) {
+            String username = getAccountName(option, firstName, lastName, middleName);
+            if (username != null && isUnique(identity, username)) {
+                uniqueDN = "CN=" + username + UserOU; 
+				uniqueNameFound = true; 
+                break;
+            }
+            option++;
+        }
+    }
+	if(!uniqueNameFound)
+	{
+		int accountIteration = 1;
+        while (accountIteration <= 50) {
+            String username = getAccountName(1, firstName, lastName, middleName) + accountIteration;
+            if (username != null && isUnique(identity, username)) {
+                uniqueDN = "CN=" + username + UserOU; 
+				uniqueNameFound = true; 
+                break;
+            }
+            accountIteration++;
+        }
+	}
+
+    return uniqueDN;
+}
+
+return generateUniqueDN(context, identity);
+]]></Source>
+</Rule>

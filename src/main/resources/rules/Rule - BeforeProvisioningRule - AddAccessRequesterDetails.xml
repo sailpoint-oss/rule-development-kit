@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE Rule PUBLIC "sailpoint.dtd" "sailpoint.dtd">
+<Rule name="AddAccessRequesterDetails" type="BeforeProvisioning">
+    <Description>Before Provisioning Rule which changes disables and enables to a modify.</Description>
+    <Source><![CDATA[
+import sailpoint.object.*;
+import sailpoint.object.ProvisioningPlan.AccountRequest;
+import sailpoint.object.ProvisioningPlan.AccountRequest.Operation;
+import sailpoint.object.ProvisioningPlan.AttributeRequest;
+import sailpoint.object.ProvisioningPlan;
+import sailpoint.object.ProvisioningPlan.Operation;
+import sailpoint.object.Identity;
+import java.util.List;
+ 
+if(plan != null)
+{
+	log.debug(\"AD Before Provisioning Rule : Entering Rule\");
+	List accountRequests = plan.getAccountRequests();
+	if(accountRequests != null)
+	{
+		for(AccountRequest accountRequest : accountRequests) 
+		{
+			AccountRequest.Operation op = accountRequest.getOperation();
+			if(op != null && op == AccountRequest.Operation.Create)
+			{
+				// Get Requester info
+				List requesterList = plan.getRequesters();
+				Identity requester = null;
+				if (requesterList != null && requesterList.size() > 0)
+				{
+					requester = requesterList.get(0);				
+					if(requester != null)
+					{
+						String requesterNetID = (String)requester.getAttribute(\"netid\");
+						accountRequest.add(new AttributeRequest(\"extensionAttribute1\", ProvisioningPlan.Operation.Set, requesterNetID));
+						log.debug(\"UIH AD Before Provisioning Rule : Added Requester Information \");
+					}
+				}
+			}
+		}
+	}
+	log.debug(\"UIH AD Before Provisioning Rule : Exiting Rule\");
+}
+
+  ]]></Source>
+</Rule>
