@@ -1,0 +1,185 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE Rule PUBLIC "sailpoint.dtd" "sailpoint.dtd">
+<Rule name="EmailGenerator" type="AttributeGenerator">
+    <Description>Generate a unique email address for Active Directory.</Description>
+    <Source><![CDATA[
+
+import sailpoint.tools.GeneralException;
+import sailpoint.object.Identity;
+import sailpoint.object.Application;
+import sailpoint.object.ProvisioningPlan.AccountRequest;
+import sailpoint.object.ProvisioningPlan.AccountRequest.Operation;
+import sailpoint.object.ProvisioningPlan.AttributeRequest;
+import sailpoint.object.ProvisioningPlan;
+import sailpoint.object.ProvisioningPlan.Operation;
+import java.util.Random;
+import org.apache.commons.lang.StringUtils;
+import java.util.List;
+import java.util.ArrayList;
+import sailpoint.tools.Util;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+log.info("EMAIL GENERATOR RULE AD || 1: Entering the RULE - EmailGenerator");
+
+String companyID = identity.getAttribute("companyId");
+log.info("EMAIL GENERATOR RULE AD || 3: Retrieved COMPANY_ID is: " + companyID);
+
+/**
+ * Method to retrieve the email domain based on the company ID.
+ * It maps a given company ID to a corresponding domain. If no match is found, 
+ * a default message is returned.
+ * 
+ * @param companyID The company ID for which the domain needs to be retrieved.
+ * @return The corresponding domain for the company ID.
+ */
+public static String getDomainByCompanyID(String companyID) {
+    log.info("EMAIL GENERATOR RULE AD || 4: Entering getDomainByCompanyID method with companyID: " + companyID);
+
+    // Initialize the map with CompanyID and Email Domain pairs
+    Map companyDomains = new HashMap();
+    companyDomains.put("98", "jmfamily.com");
+    companyDomains.put("10", "jmfamily.com");
+    companyDomains.put("100", "jmfamily.com");
+    companyDomains.put("101", "jmfamily.com");
+    companyDomains.put("160", "jmfamilyholdings.com");
+    companyDomains.put("200", "setoyota.com");
+    companyDomains.put("250", "setoyota.com");
+    companyDomains.put("290", "setoyota.com");
+    companyDomains.put("300", "jmagroup.com");
+    companyDomains.put("301", "jmagroup.com");
+    companyDomains.put("303", "jmagroup.com");
+    companyDomains.put("305", "jmagroup.com");
+    companyDomains.put("307", "jmagroup.com");
+    companyDomains.put("400", "setf.com");
+    companyDomains.put("40011", "wofco.com");
+    companyDomains.put("40013", "ctrone.com");
+    companyDomains.put("40014", "yatc.org");
+    companyDomains.put("40015", "centurywarranty.com");
+    companyDomains.put("40016", "fiasolutions.com");
+    companyDomains.put("40017", "dsfs.ca");
+    companyDomains.put("40018", "mmsa.com");
+    companyDomains.put("40019", "jmcustomcreations.com");
+    companyDomains.put("40020", "dsfs.com");
+    companyDomains.put("421", "onedatascan.com");
+    companyDomains.put("422", "onedatascan.com");
+    companyDomains.put("424", "onedatascan.ca");
+    companyDomains.put("464", "onedatascan.com");
+    companyDomains.put("470", "onedatascan.com");
+    companyDomains.put("495", "onedatascan.ca");
+    companyDomains.put("700", "jmlexus.com");
+    companyDomains.put("997", "bellsouth.net");
+
+    // Return the domain for the given CompanyID, or a message if not found
+    String domain = companyDomains.getOrDefault(companyID, "CompanyID not found!");
+    log.info("EMAIL GENERATOR RULE AD || 5: Exiting getDomainByCompanyID method with domain: " + domain);
+    return domain;
+}
+
+log.info("EMAIL GENERATOR RULE AD || 6: COMPANY ID IS: " + getDomainByCompanyID(companyID));
+
+/**
+ * Method to check if the generated email is unique.
+ * It validates if the generated email already exists in LDAP for the given identity and application.
+ * 
+ * @param email The generated email to check for uniqueness.
+ * @param identityId The identity ID of the user.
+ * @param applicationName The name of the application.
+ * @param attributeName The LDAP attribute name to check.
+ * @return true if the email is unique, false otherwise.
+ * @throws GeneralException If there is an error during the check.
+ */
+public boolean isUnique(String email, String identityId, String applicationName, String attributeName) throws GeneralException {
+    log.info("EMAIL GENERATOR RULE AD || 7: Entering isUnique method with email: " + email);
+
+    try {
+        boolean isUnique = idn.isUniqueLDAPValue(identityId, applicationName, attributeName, email);
+        log.info("EMAIL GENERATOR RULE AD || 8: Exiting isUnique method with result: " + isUnique);
+        return isUnique;
+    } catch (Exception e) {
+        log.error("EMAIL GENERATOR RULE AD || 9: Error in isUnique method: " + e.getMessage());
+        throw new GeneralException("Error in isUnique method", e);
+    }
+}
+
+/**
+ * Method to generate a valid and unique email address for the user based on their first name, 
+ * last name, and company ID.
+ * It first tries to generate a basic email and check its uniqueness. If the email is not unique, 
+ * it appends a number to create a unique version.
+ * 
+ * @param firstName The first name of the user.
+ * @param lastName The last name of the user.
+ * @param companyId The company ID of the user to generate domain.
+ * @return The generated unique email address.
+ * @throws GeneralException If the email cannot be generated after 100 attempts.
+ */
+public String generateEmail() throws GeneralException {
+    
+    String firstName = identity.getFirstname();
+    String lastName = identity.getLastname();
+    String companyId = identity.getAttribute("companyId");
+
+    log.info("EMAIL GENERATOR RULE AD || 10: Entering generateEmail method with firstName: " + firstName + ", lastName: " + lastName + ", companyId: " + companyId);
+
+    try {
+        String domain = getDomainByCompanyID(companyId);
+        String generatedEmail = firstName + "." + lastName + "@" + domain;
+        String applicationName = application.getName();
+        String identityId = identity.getId();
+        String attributeName = "mail";
+        String[] sourceIdsArray = {"de15dbc4e37b4e4abdd0a56e54d1376c"}; 
+        List sourceIds = Arrays.asList(sourceIdsArray);
+        String[] valuesArray = {generatedEmail};
+        List values = Arrays.asList(valuesArray);
+        String operation = "Create";
+        String workdayAttributeName = "promotedEmailId";
+
+        log.info("EMAIL GENERATOR RULE AD || 11: Generated email is: " + generatedEmail);
+
+        if (Util.isNotNullOrEmpty(firstName) && Util.isNotNullOrEmpty(lastName) && Util.isNotNullOrEmpty(domain)) {
+            if (Util.isNotNullOrEmpty(applicationName) && Util.isNotNullOrEmpty(identityId) && Util.isNotNullOrEmpty(attributeName)) {
+                if (generatedEmail != null && !generatedEmail.isEmpty()) {
+                    // Check if the generated email is unique
+                    if (isUnique(generatedEmail, identityId, applicationName, attributeName)) {
+                        String workdayAttributeValue = idn.attrSearchGetIdentityName(sourceIds, workdayAttributeName, operation, values);
+                        log.info("EMAIL GENERATOR RULE AD || 12: Exiting generateEmail method with result: " + generatedEmail.toLowerCase());
+                        if (Util.isNullOrEmpty(workdayAttributeValue)){
+                            return generatedEmail.toLowerCase();
+                        }
+                    } else {
+                        log.warn("EMAIL GENERATOR RULE AD || 13: Generated email is not unique, proceeding to fallback logic.");
+                    }
+                }
+            }
+
+            // Fallback logic to add iteration number to email
+            int iteration = 1;
+            while (iteration < 100) {
+                String emailWithIteration = firstName + "." + lastName + iteration + "@" + domain;
+                String[] emailIdtArray = {emailWithIteration};
+                List emailIdvalue = Arrays.asList(emailIdtArray);
+
+                // Check if the email with iteration is unique
+                if (isUnique(emailWithIteration, identityId, applicationName, attributeName)) {
+                    String workdayAttributeValue = idn.attrSearchGetIdentityName(sourceIds, workdayAttributeName, operation, emailIdvalue);
+                    log.info("EMAIL GENERATOR RULE AD || 14: Exiting generateEmail method with result (generated with iteration): " + emailWithIteration.toLowerCase());
+                    if (Util.isNullOrEmpty(workdayAttributeValue)){
+                        return emailWithIteration.toLowerCase(); // Return as soon as we find a unique email
+                    }
+                }
+                iteration++; // Continue to next iteration only if not unique
+            }
+        }
+        throw new GeneralException("EMAIL GENERATOR RULE AD || 15: Cannot generate email after 100 attempts");
+    } catch (Exception e) {
+        log.error("EMAIL GENERATOR RULE AD || 16: Error in generateEmail method: " + e.getMessage());
+        throw new GeneralException("Error in generateEmail method", e);
+    }
+}
+
+log.info("EMAIL GENERATOR RULE AD || 17: Exiting EmailGenerator rule - Generated email: " + generateEmail());
+return generateEmail();
+]]></Source>
+</Rule>

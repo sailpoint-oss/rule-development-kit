@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE Rule PUBLIC "sailpoint.dtd" "sailpoint.dtd">
+<Rule name="MorriseyBuildMap" type="BuildMap">
+    <Description>This rule sets the IIQDisabled flag based on the User_Status field and adds a default "account" attribute with the value "access."</Description>
+    <Signature returnType='Object'>
+    <Inputs>
+    <Argument name='cols' type='java.util.List'>
+        <Description>
+            The columns of the delimited file.
+        </Description>
+    </Argument>
+        <Argument name='record' type='java.util.List'>
+            <Description>
+                A single record of the delimited file.
+            </Description>
+        </Argument>
+    </Inputs>
+    </Signature>
+    <Source><![CDATA[
+	
+    import sailpoint.connector.DelimitedFileConnector;
+ 
+    Map map = DelimitedFileConnector.defaultBuildMap(cols, record);
+    String status = (String) map.get("User_Status");
+    boolean accountDisabledFlag = false;
+    if (status != null && status.equalsIgnoreCase("A")) {
+        accountDisabledFlag = false;
+    } else {
+        accountDisabledFlag = true;  
+    }
+ 
+    map.put("IIQDisabled", accountDisabledFlag);
+	map.put("account", "access");
+ 
+    return map;
+ 
+ 
+  ]]></Source>
+</Rule>

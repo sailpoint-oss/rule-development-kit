@@ -1,0 +1,94 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE Rule PUBLIC "sailpoint.dtd" "sailpoint.dtd">
+<Rule name="AcOUMovement" type="BeforeProvisioning">
+    <Description>Before Provisioning Rule which changes disables and enables to a modify</Description>
+    <Source>
+	<![CDATA[
+  
+    import sailpoint.object.ProvisioningPlan.AccountRequest;
+	import sailpoint.object.ProvisioningPlan.AccountRequest.Operation;
+	import sailpoint.object.ProvisioningPlan.AttributeRequest;
+	import sailpoint.object.ProvisioningPlan;
+	import sailpoint.object.ProvisioningPlan.Operation;
+	import sailpoint.object.Identity;
+
+  if (plan != null) {
+     Identity identity = plan.getIdentity();
+	 String applicationName = application.getName();
+	 
+
+	for (AccountRequest accountRequest : plan.getAccountRequests()) {
+	  if (accountRequest.getOp().equals(ProvisioningPlan.ObjectOperation.Disable)) {
+        accountRequest.add(new AttributeRequest("AC_NewParent", ProvisioningPlan.Operation.Set, "OU=RetiredUsers,OU=RetiredObjects,OU=RAI,DC=devad,DC=rai,DC=com"));
+        accountRequest.add(new AttributeRequest("memberOf", ProvisioningPlan.Operation.Add, "CN=T2_EMP_DisabledAccounts,OU=T2-Groups,OU=Tier2,OU=Production,OU=RAI,DC=devad,DC=rai,DC=com"));
+        accountRequest.add(new AttributeRequest("primaryGroupDN", ProvisioningPlan.Operation.Set, "CN=T2_EMP_DisabledAccounts,OU=T2-Groups,OU=Tier2,OU=Production,OU=RAI,DC=devad,DC=rai,DC=com"));
+        accountRequest.add(new AttributeRequest("memberOf", ProvisioningPlan.Operation.Remove, "CN=Domain Users,CN=Users,DC=devad,DC=rai,DC=com"));
+
+	 }
+	  if (accountRequest.getOp().equals(ProvisioningPlan.ObjectOperation.Enable)) {
+        accountRequest.add(new AttributeRequest("AC_NewParent", ProvisioningPlan.Operation.Set, "OU=T2-Users,OU=Tier2,OU=Production,OU=RAI,DC=devad,DC=rai,DC=com"));
+        accountRequest.add(new AttributeRequest("memberOf", ProvisioningPlan.Operation.Add, "CN=Domain Users,CN=Users,DC=devad,DC=rai,DC=com"));
+        accountRequest.add(new AttributeRequest("primaryGroupDN", ProvisioningPlan.Operation.Set, "CN=Domain Users,CN=Users,DC=devad,DC=rai,DC=com"));
+		accountRequest.add(new AttributeRequest("memberOf", ProvisioningPlan.Operation.Remove, "CN=T2_EMP_DisabledAccounts,OU=T2-Groups,OU=Tier2,OU=Production,OU=RAI,DC=devad,DC=rai,DC=com"));
+        accountRequest.add(new AttributeRequest("memberOf", ProvisioningPlan.Operation.Remove, "CN=T2_Sec_InboundEmailBlock,OU=T2-Groups,OU=Tier2,OU=Production,OU=RAI,DC=devad,DC=rai,DC=com"));
+      }
+	  
+	  if (accountRequest.getOp().equals(ProvisioningPlan.ObjectOperation.Create)) {
+	  
+	  String nativeIdentity = accountRequest.getNativeIdentity();
+	  
+	  
+	  String UserOU = "OU=T2-Users,OU=Tier2,OU=Production,OU=RAI,DC=devad,DC=rai,DC=com";
+      String RetiredOU = "OU=RetiredUsers,OU=RetiredObjects,OU=RAI,DC=devad,DC=rai,DC=com";
+	   
+	  
+	  public String generateCN(String applicationName, String displayName, String UserOU, String RetiredOU, String nativeIdentity) {
+               String newDN = "CN=" + displayName + "," + UserOU;
+			   String newRetDN = "CN=" + displayName + "," + RetiredOU;
+			   
+			    boolean accountExistsInDN;
+                boolean accountExistsInRetDN;
+				
+				
+                accountExistsInDN = idn.accountExistsByNativeIdentity(applicationName, newDN);
+				accountExistsInRetDN = idn.accountExistsByNativeIdentity(applicationName, newRetDN);
+                if (!accountExistsInDN && !accountExistsInRetDN) {
+                    return displayName;
+                }
+
+                for (int i=1; i<100; i++) {
+                    String displayName = displayName + i;
+                    newDN = "CN=" + displayName + "," + UserOU;
+					newRetDN = "CN=" + displayName + "," + RetiredOU;
+                    accountExistsInDN = idn.accountExistsByNativeIdentity(applicationName, newDN);
+					accountExistsInRetDN = idn.accountExistsByNativeIdentity(applicationName, newRetDN);
+                    if(!accountExistsInDN && !accountExistsInRetDN) {
+                        return displayName;
+                    }
+                }
+                return null;
+            } 
+	  
+	  String displayName = (String) identity.getAttribute(\"displayName\");
+	  
+	 if (displayName != null && displayName.contains("[C]")) {
+    displayName = displayName.replace("[C]", "");
+}
+displayName = displayName.trim();
+
+String newCN = generateCN(applicationName, displayName, UserOU, RetiredOU, nativeIdentity);
+if (null != newCN){
+accountRequest.add(new AttributeRequest("AC_NewName", ProvisioningPlan.Operation.Set, "CN=" + newCN));
+accountRequest.add(new AttributeRequest("AC_NewParent", ProvisioningPlan.Operation.Set, UserOU));
+	  }
+        }
+		if ((accountRequest.getOp().equals(ProvisioningPlan.ObjectOperation.Create)) && (activeDirectoryDn != null)){
+		 	   log.debug("Inside Create Block to modify the provisioning plan");
+			   plan.remove(accountRequest);
+
+		 }
+	 }  
+	}
+]]>
+</Source>
+		</Rule>

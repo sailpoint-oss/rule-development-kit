@@ -1,0 +1,190 @@
+<Rule name="EmailGenerator" type="AttributeGenerator">
+    <Description>Generate a unique email address for Active Directory.</Description>
+    <Source><![CDATA[
+import sailpoint.tools.GeneralException;
+import sailpoint.object.Identity;
+import sailpoint.object.Application;
+import sailpoint.object.ProvisioningPlan.AccountRequest;
+import sailpoint.object.ProvisioningPlan.AccountRequest.Operation;
+import sailpoint.object.ProvisioningPlan.AttributeRequest;
+import sailpoint.object.ProvisioningPlan;
+import sailpoint.object.ProvisioningPlan.Operation;
+import java.util.Random;
+import org.apache.commons.lang.StringUtils;
+import java.util.List;
+import java.util.ArrayList;
+import sailpoint.tools.Util;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+log.info("EMAIL GENERATOR RULE AD || 1: Entering the RULE - EmailGenerator");
+
+String companyID = identity.getAttribute("companyId");
+log.info("EMAIL GENERATOR RULE AD || 3: Retrieved COMPANY_ID is: " + companyID);
+
+// Check for empty company ID, first name, or last name and throw an exception
+if (Util.isNullOrEmpty(companyID)) {
+    String errorMessage = "EMAIL GENERATOR RULE AD || 4: Company ID is empty. Throwing exception.";
+    log.error(errorMessage);
+    throw new GeneralException(errorMessage);
+}
+
+String firstName = identity.getFirstname();
+String lastName = identity.getLastname();
+String isAssociate = identity.getAttribute("isAssociate");
+
+// Check if first name or last name is empty and throw an exception
+if (Util.isNullOrEmpty(firstName)) {
+    String errorMessage = "EMAIL GENERATOR RULE AD || 5: First name is empty. Throwing exception.";
+    log.error(errorMessage);
+    throw new GeneralException(errorMessage);
+}
+if (Util.isNullOrEmpty(lastName)) {
+    String errorMessage = "EMAIL GENERATOR RULE AD || 6: Last name is empty. Throwing exception.";
+    log.error(errorMessage);
+    throw new GeneralException(errorMessage);
+}
+
+/**
+ * Method to retrieve the email domain based on the company ID.
+ */
+public static String getDomainByCompanyID(String companyID) {
+    log.info("EMAIL GENERATOR RULE AD || 7: Entering getDomainByCompanyID method with companyID: " + companyID);
+
+    // Initialize the map with CompanyID and Email Domain pairs
+    Map companyDomains = new HashMap();
+    companyDomains.put("98", "jmfamily.com");
+    companyDomains.put("10", "jmfamily.com");
+    companyDomains.put("100", "jmfamily.com");
+    companyDomains.put("101", "jmfamily.com");
+    companyDomains.put("160", "jmfamilyholdings.com");
+    companyDomains.put("200", "setoyota.com");
+    companyDomains.put("250", "setoyota.com");
+    companyDomains.put("290", "setoyota.com");
+    companyDomains.put("300", "jmagroup.com");
+    companyDomains.put("301", "jmagroup.com");
+    companyDomains.put("303", "jmagroup.com");
+    companyDomains.put("305", "jmagroup.com");
+    companyDomains.put("307", "jmagroup.com");
+    companyDomains.put("400", "setf.com");
+    companyDomains.put("40011", "wofco.com");
+    companyDomains.put("40013", "ctrone.com");
+    companyDomains.put("40014", "yatc.org");
+    companyDomains.put("40015", "centurywarranty.com");
+    companyDomains.put("40016", "fiasolutions.com");
+    companyDomains.put("40017", "dsfs.ca");
+    companyDomains.put("40018", "mmsa.com");
+    companyDomains.put("40019", "jmcustomcreations.com");
+    companyDomains.put("40020", "dsfs.com");
+    companyDomains.put("421", "onedatascan.com");
+    companyDomains.put("422", "onedatascan.com");
+    companyDomains.put("424", "onedatascan.ca");
+    companyDomains.put("464", "onedatascan.com");
+    companyDomains.put("470", "onedatascan.com");
+    companyDomains.put("495", "onedatascan.ca");
+    companyDomains.put("700", "jmlexus.com");
+    companyDomains.put("997", "bellsouth.net");
+
+    // Return the domain for the given CompanyID, or a message if not found
+    String domain = companyDomains.getOrDefault(companyID, "Domain Not Found For Specific company ID");
+    log.info("EMAIL GENERATOR RULE AD || 8: Exiting getDomainByCompanyID method with domain: " + domain);
+    return domain;
+}
+
+log.info("EMAIL GENERATOR RULE AD || 9: Retrieved domain: " + getDomainByCompanyID(companyID));
+
+/**
+ * Method to check if the generated email is unique.
+ */
+public boolean isUnique(String email, String identityId, String applicationName, String attributeName) throws GeneralException {
+    log.info("EMAIL GENERATOR RULE AD || 10: Entering isUnique method with email: " + email);
+
+    try {
+        boolean isUnique = idn.isUniqueLDAPValue(identityId, applicationName, attributeName, email);
+        log.info("EMAIL GENERATOR RULE AD || 11: Exiting isUnique method with result: " + isUnique);
+        return isUnique;
+    } catch (Exception e) {
+        log.error("EMAIL GENERATOR RULE AD || 12: Error in isUnique method: " + e.getMessage());
+        throw new GeneralException("Error in isUnique method", e);
+    }
+}
+
+/**
+ * Method to generate a valid and unique email address.
+ */
+public String generateEmail() throws GeneralException {
+
+    log.info("EMAIL GENERATOR RULE AD || 13: Entering generateEmail method");
+
+    String firstName = identity.getFirstname();
+    String lastName = identity.getLastname();
+    String companyId = identity.getAttribute("companyId");
+    String isAssociate = identity.getAttribute("isAssociate");
+
+    if (Util.isNullOrEmpty(firstName) || Util.isNullOrEmpty(lastName)) {
+        String errorMessage = "EMAIL GENERATOR RULE AD || 14: First name or last name is empty.";
+        log.error(errorMessage);
+        throw new GeneralException(errorMessage);
+    }
+
+    log.info("EMAIL GENERATOR RULE AD || 15: First name: " + firstName + ", Last name: " + lastName);
+
+    try {
+        String domain = getDomainByCompanyID(companyId);
+        if(domain.equalsIgnoreCase("Domain Not Found For Specific company ID")){
+            String errorMessage = "EMAIL GENERATOR RULE AD || 16: Invalid company ID, domain not found.";
+            log.error(errorMessage);
+            throw new GeneralException(errorMessage);
+        }
+        
+        // Determine the base email structure
+        String baseEmail = firstName + "." + lastName;
+        if ("N".equalsIgnoreCase(isAssociate)) {
+            baseEmail += "_contractor"; // Add _contractor suffix for associates
+        }
+
+        String generatedEmail = baseEmail + "@" + domain;
+        log.info("EMAIL GENERATOR RULE AD || 17: Generated email: " + generatedEmail);
+
+        // Check if the generated email is unique
+        if (isUnique(generatedEmail, identity.getId(), application.getName(), "mail")) {
+            log.info("EMAIL GENERATOR RULE AD || 18: Exiting generateEmail method with result: " + generatedEmail.toLowerCase());
+            return generatedEmail.toLowerCase();
+        } else {
+            log.warn("EMAIL GENERATOR RULE AD || 19: Generated email is not unique. Adding iteration.");
+        }
+
+        // Fallback logic with iteration for both isAssociate == "N" and not "N"
+        int iteration = 1;
+        while (iteration < 100) {
+            String emailWithIteration = firstName + "." + lastName + iteration;
+            if ("N".equalsIgnoreCase(isAssociate)) {
+                emailWithIteration += "_contractor"; // Add _contractor suffix for associates
+            }
+            emailWithIteration += "@" + domain;
+
+            if (isUnique(emailWithIteration, identity.getId(), application.getName(), "mail")) {
+                log.info("EMAIL GENERATOR RULE AD || 20: Exiting generateEmail method with result: " + emailWithIteration.toLowerCase());
+                return emailWithIteration.toLowerCase();
+            }
+            iteration++;
+        }
+
+        String errorMessage = "EMAIL GENERATOR RULE AD || 21: Cannot generate email after 100 attempts";
+        log.error(errorMessage);
+        throw new GeneralException(errorMessage);
+
+    } catch (Exception e) {
+        String errorMessage = "EMAIL GENERATOR RULE AD || 22: Error in generateEmail method: " + e.getMessage();
+        log.error(errorMessage);
+        throw new GeneralException(errorMessage, e);
+    }
+}
+
+log.info("EMAIL GENERATOR RULE AD || 23: Exiting EmailGenerator rule");
+
+return generateEmail();
+
+]]></Source>
+</Rule>

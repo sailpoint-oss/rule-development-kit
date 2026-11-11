@@ -17,20 +17,40 @@
     </Inputs>
     </Signature>
     <Source><![CDATA[
-     import sailpoint.connector.DelimitedFileConnector;
+    import sailpoint.connector.DelimitedFileConnector;
+    import sailpoint.tools.Util;
 
-     Map map = DelimitedFileConnector.defaultBuildMap( cols, record );
-     String access = (String) map.get( "access" );
-     String permission = (String) map.get( "permission" );
+    Map map = DelimitedFileConnector.defaultBuildMap(cols, record);
+    log.info(map.get("Display_Name"));
+    // Log the initial map to see what data is received
+    log.info("DELIMITED FILE BUILD MAP RULE LOG 1: Initial map: " + map);
 
-    log.debug("Map log: " + map);
+    // Get the "User_Status" value from the map
+    String status = (String) map.get("User_Status");
+    log.info("DELIMITED FILE BUILD MAP RULE LOG 2: User_Status value: " + status);
 
-     if ( access != null && permission != null ) {
-          map.remove("access");
-          map.remove("permission");
-          map.put("access", access + " - " + permission);
-     }
-     return map;
+    boolean accountDisabledFlag = false;
+
+    // Check the User_Status and set the accountDisabledFlag accordingly
+    if (status.equalsIgnoreCase("A")) {
+        accountDisabledFlag = false;
+        log.info("DELIMITED FILE BUILD MAP RULE LOG 3: Account is active. accountDisabledFlag set to false.");
+    } else if (status.equalsIgnoreCase("I")) {
+        accountDisabledFlag = true;
+        log.info("DELIMITED FILE BUILD MAP RULE LOG 4: Account is disabled. accountDisabledFlag set to true.");
+    } else {
+        log.info("DELIMITED FILE BUILD MAP RULE LOG 5: Unrecognized status value. No changes to accountDisabledFlag.");
+    }
+
+    // Put the result into the map
+    map.put("IIQDisabled", accountDisabledFlag);
+
+    // Log the final map to verify the result
+    log.info("DELIMITED FILE BUILD MAP RULE LOG 6: Final map is: " + map);
+
+    return map;
+
+
 
   ]]></Source>
 </Rule>

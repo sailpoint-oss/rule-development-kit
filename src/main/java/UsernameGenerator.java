@@ -17,6 +17,7 @@ public class UsernameGenerator {
     int MAX_USERNAME_LENGTH = 12;
 
 
+    @SuppressWarnings("null")
     public String generateUsername(String firstName, String lastName) throws GeneralException {
         firstName = StringUtils.trimToNull(firstName);
         lastName = StringUtils.trimToNull(lastName);
@@ -46,7 +47,7 @@ public class UsernameGenerator {
         String username = null;
         String fullName = firstName + "." + lastName;
 
-        if(fullName.length() > MAX_USERNAME_LENGTH) {
+        if(fullName.length() > MAX_USERNAME_LENGTH && fullName!=null) {
             int firstNameLength = firstName.length();
 
             if(firstNameLength > (MAX_USERNAME_LENGTH - 2)) {
